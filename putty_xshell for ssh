@@ -1,0 +1,96 @@
+putty 登录Linux
+如果你打算在windows下访问另外一台装有Linux的机子，那么推荐使用putty (d当然你的linux必须已经安装了ssh服务器才行。)
+SSH提供两种级别的安全验证: 一是基于口令的安全验证。只要用户知道自己账号和口令，就可以登录到远程主机。所有传输的数据都会被加密，但是不能保证用户正在连接的服务器就是用户想连接的服务器。可能会有别的服务器在冒充真正的服务器，这存在着潜在的威胁。二是基于密匙的安全验证。需要依靠密匙，也就是用户必须为自己创建一对公匙/密钥对，并把公用密匙放在需要访问的服务器上。如果需要连接到SSH服务器上，客户端软件就会向服务器发出请求，请求使用用户的密匙进行
+安全验证。服务器收到请求之后，先在服务器上用户的主目录下找到该用户的公用密匙，然后把它和用户发送过来的公用密匙进行比较。如果两个密匙一致，服务器就用公用密匙加密“质询”并把它发送给客户端软件。客户端软件收到“质询”之后就可以用用户的私人密匙解密再把它发送给服务器。
+
+一、通过方式一：口令认证登陆
+1、打开putty.exe
+   1)、Session --> Host Name (填写服务器地址或者域名,如：192.168.0.250s)
+   如果远程主机存在提示如下：
+   login as: root
+   root@192.168.0.250's password:
+   正确输入密码后即可正常登陆远程Linux主机
+（注意：
+     远程Linux主机的/etc/ssh/sshd_config配置文件
+     PasswordAuthentication 必须为 yes
+     修改后/etc/init.d/sshd reload #加载修改后的配置文件并生效
+   ）
+二、通过方式二：密匙认证登陆
+方案一：使用puttygen.exe生成的密匙
+1、用puttygen.exe生成一对密匙
+   1)、打开puttygen.exe，直接点击Generate，鼠标在Key区空白的位置频繁的晃动
+       加快随机数的产生，这样几秒钟就可以生成我们需要的密匙
+   2)、点击Save public key->id_rsa.pub(保存密匙)
+       因为puttygen.exe生成的格式和Linux系统使用的key格式不同，需要对生成的数据作些简单的修改：
+       比如源数据：
+       ---- BEGIN SSH2 PUBLIC KEY ----
+       Comment: "rsa-key-gliethttp"
+       AAAAB3NzaC1yc2EAAAABJQAAAIEAg2Nx1dBZBypLXY1S78plfmPmwlQj1Ckuoz8o
+       4vAWjJfOy3i6t2+o7aZMbGN+yUbQY5ScyJu3bK7Wg3ZxXP6qps14J2CAXbdrT9VH
+       2AA3FIOgbLHii7Bwmjkr5+hVYp7Vazm7cPsGpKnmCWihqX7rkQdY7xq3mOCJI3ry
+       Nnfkrh0=
+       ---- END SSH2 PUBLIC KEY ----
+       修改成：（我使用的Linux主机名为gliethttp）   
+       ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAIEAg2Nx1dBZBypLXY1S78plfmPmwlQj1Ckuoz8o4vAWjJfOy3i6t2+
+       o7aZMbGN+yUbQY5ScyJu3bK7Wg3ZxXP6qps14J2CAXbdrT9VH2AA3FIOgbLHii7Bwmjkr5+hVYp7Vazm7cPsGpK
+       nmCWihqX7rkQdY7xq3mOCJI3ryNnfkrh0= root@gliethttp
+      （注意：修改后的数据不能有回车换行）
+   3)、将生成的id_rsa.pub拷贝到远程主机gliethttp的/root/.ssh上
+       重命名为authorized_keys
+       [root@gliethttp root]#cd .ssh
+       [root@gliethttp .sh]#mv id_rsa.pub authorized_keys
+       这样sshd服务程序当接收到远程客户端的连接申请时会自动匹配.ssh/authorized_keys文件中的密匙
+   4)、点击Save private key->id_rsa.ppk(保存私钥)
+       如果安全级别不是很苛刻，可以不设置Key passphrase
+2、打开putty.exe
+   1)、Session --> Host Name (填写服务器地址或者域名)
+   2)、Connection --> SSH --> Auth (点Browse选择刚生成的id_rsa.ppk)
+   3)、open
+   成功打开后出现如下提示：
+   login as: root
+   Authenticating with public key "imported-openssh-key"
+方案二：使用Linux主机生成的密匙
+1、生成密匙
+   [root@gliethttp .ssh]#ssh-keygen -t rsa
+   Generating public/private rsa key pair.
+   Enter file in which to save the key (/root/.ssh/id_rsa):
+   Enter passphrase (empty for no passphrase):
+   Enter same passphrase again:
+   Your identification has been saved in /root/.ssh/id_rsa.
+   Your public key has been saved in /root/.ssh/id_rsa.pub.
+   The key fingerprint is:
+   e4:9a:47:a7:b4:8a:0b:98:07:b8:70:de:6b:16:2c:0c root@gliethttp
+2、将/root/.ssh/id_rsa.pub改名为/root/.ssh/authorized_keys
+   [root@gliethttp .ssh]#mv /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
+3、将私钥id_rsa拷贝到远程客户端
+   1)、如果远程客户端是linux，拷贝到远程客户端/root/.ssh/即可
+   2)、putty作为远程客户端在
+       putty不能识别直接从服务器拷贝来的私钥，需要使用puttygen.exe进行格式转换
+      (1)、打开puttygen.exe --> Conversions --> Import Key
+      (2)、选择拷贝过来的私钥文件id_rsa
+      (3)、Save private key->id_rsa.ppk(保存私钥)
+4、打开putty.exe
+   1)、Session --> Host Name (填写服务器地址或者域名)
+   2)、Connection --> SSH --> Auth (点Browse选择刚生成的id_rsa.ppk)
+   3)、open
+   成功打开后出现如下提示：
+   login as: root
+   Authenticating with public key "imported-openssh-key"
+   
+   ---------------------------------------------------------------
+   如果我们只希望有私钥的远程客户机才能通过ssh登陆本主机，那么
+   远程Linux主机的/etc/ssh/sshd_config配置文件
+   PasswordAuthentication 改为 no
+   修改后/etc/init.d/sshd reload #加载修改后的配置文件并生效
+   这样其他远程客户端如果没有私钥，那么这些用户连输入密码的机会都没有，就会被本主机直接断开
+   ***************************************************************
+   注意：
+   如果putty.exe不能登陆远程主机，请查看如下几个选项是否符合：
+   1)、远程主机的防火墙是否关闭，通过如下指令关闭防火墙：
+       [root@gliethttp root]#/etc/init.d/iptables stop
+   2)、远程主机是否启动sshd，通过如下指令启动：
+       [root@gliethttp root]#/etc/init.d/sshd start
+   ***************************************************************
+   
+   xshell6 ssh登录 linux
+   使用密码管理生产公密码 和私密码；上传到服务器。ssh authorized——keys 注册》然后使用登录界面选择私密码 验证就可以登录本次测试成功。
