@@ -94,3 +94,42 @@ SSH提供两种级别的安全验证: 一是基于口令的安全验证。只要
    
    xshell6 ssh登录 linux
    使用密码管理生产公密码 和私密码；上传到服务器。ssh authorized——keys 注册》然后使用登录界面选择私密码 验证就可以登录本次测试成功。
+   
+   xshell 免密登录远程服务器ssh配置
+
+1、在linux服务端 ssh-keygen 在/root下生成.ssh文件 touch anthorized_keys
+2、在xshell段创建ssh公密码把生成的id_rsa2048.pub 文件内容复制到 anuthorized_keys中
+3、在 客户段登录服务器IP地址选择免密登录既可以
+
+putty 免密登录远程服务器ssh配置
+
+
+
+1、打开puttygen.exe，点击按钮Generate,并在空白处随意移动鼠标以便产生随机数据。保持各项参数
+
+默认，点击按钮Save private key,会提醒“Are you sre you want to save this key without a 
+
+passphrase to protect it ?”，可以不需要密码保护，点击是即可。 
+
+2创建.ssh/authorized_keys 
+
+1、通过Putty密码方式登录CentOS，创建文件authorized_keys 
+
+1.vim ~/.ssh/authorized_keys 
+
+2、把刚才用puttygen.exe软件生成的密钥(显示的公钥()由OpenSSH认可：下面的内容)复制并粘贴到
+
+authorized_keys文件，保存退出。 
+
+设置putty实现用证书登录 
+
+Putty→Session:将Host Name(Or IP Address)填好 
+Putty→Connection→Date:填好Auto-login username(自动登陆用户名) 
+Putty→Connection→SSH→Auth:在Private key file for authentication选择认证私钥文件 
+回到Putty→Session:Saved Session,填个名称保存
+
+
+
+xshell和 putty 生成的文件公密可以同时放在anthorized_keys文件中 测试好用 put生成的文件 后缀
+
+为ppk 如在服务器端创建的需要通过puttygen进行转换
