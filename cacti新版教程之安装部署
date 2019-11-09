@@ -1,0 +1,15 @@
+Cacti1.2.x新版教程之安装部署（一）
+https://blog.whsir.com/post-3841.html
+
+Cacti1.2.x新版教程之监控本机（二）
+https://blog.whsir.com/post-4371.html
+Cacti1.2.x新版教程之绘图周期设置（三）
+https://blog.whsir.com/post-4500.html
+Cacti1.2.x新版教程之监控Centos主机（四）
+https://blog.whsir.com/post-4515.html
+Cacti1.2.x新版教程之Cacti版本升级（五）
+https://blog.whsir.com/post-4531.html
+Cacti1.2.x新版教程之监控一台Windows2008主机（六）
+https://blog.whsir.com/post-4559.html
+
+在 centos7上 按照（一）的方法配置成功 并能成功监控 局域网上的 三台主机 win7 +linux +打印服务 hpserver
