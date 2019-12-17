@@ -1,0 +1,34 @@
+ centos 7.7  zabbix 4.0安装出现的错误 
+
+1.从官方安rpm安装 安装下载不下来，提示出错安装失败 更换ailyum 安装
+
+手动更换
+
+root@localhost yum.repos.d]# cat zabbix.repo
+[zabbix]
+name=Zabbix Official Repository - $basearch
+baseurl=https://mirrors.aliyun.com/zabbix/zabbix/4.0/rhel/7/$basearch/
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ZABBIX-A14FE591
+
+[zabbix-debuginfo]
+name=Zabbix Official Repository debuginfo - $basearch
+baseurl=http://repo.zabbix.com/zabbix/4.0/rhel/7/$basearch/debuginfo/
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ZABBIX-A14FE591
+gpgcheck=1
+
+[zabbix-non-supported]
+name=Zabbix Official Repository non-supported - $basearch
+baseurl=https://mirrors.aliyun.com/zabbix/non-supported/rhel/7/$basearch/
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ZABBIX
+gpgcheck=1
+
+2、安装后 进入页面出现 错误 ，需要关闭firewall 和 setenforce 0  stop nginx
+
+开启 httpd服务；
+
+3、网页可以出现安装界面 但是出现stock 数据库访问错误 ，phpmyadmin可以链接上 账号和密码没有错误；
+处理方法 ，收取zabbix账号 zabbix@‘%’ 通过sqlyog 能否链接上，确保局域网可以链接上mysql，然后更滑localhost为ip地址或者127.0.0.1 即可访问 
